@@ -17,7 +17,7 @@ if not os.path.exists(file_path):
     encoder = LabelEncoder()
     data[category_colums] = data[category_colums].apply(encoder.fit_transform)
 
-    X=data.iloc[:,:-1]
+    X=data[['Gender', 'Age', 'Occupation', 'Sleep Duration', 'Quality of Sleep','BMI Category','Blood Pressure', 'Heart Rate', 'Daily Steps']]
     y=data.iloc[:,-1]
     #array Conver
     X=X.to_numpy()
@@ -99,105 +99,178 @@ else:
             """
             ,unsafe_allow_html=True)
     
-        
-    if choice=="Login":
+    
+    # Initialize session state variables if they don't exist
+    def initialize_session_state():
+        if "Gender" not in st.session_state:
+            st.session_state["Gender"] = "Male"
+        if 'Age' not in st.session_state:
+            st.session_state['Age'] = 25  # Default age as an integer
+        if 'Weight' not in st.session_state:
+            st.session_state['Weight'] = 70.0
+        if 'Height' not in st.session_state:
+            st.session_state['Height'] = 170.0
+        if 'Occupation' not in st.session_state:
+            st.session_state['Occupation'] = 'Software Engineer'
+        if 'Sleep Duration' not in st.session_state:
+            st.session_state['Sleep Duration'] = 5.8
+        if 'Sleep Quality' not in st.session_state:
+            st.session_state['Sleep Quality'] = 'Very Poor'
+        if 'Systolic' not in st.session_state:
+            st.session_state['Systolic'] = 80
+        if 'Diastolic' not in st.session_state:
+            st.session_state['Diastolic'] = 40
+        if 'Heart Rate' not in st.session_state:
+            st.session_state['Heart Rate'] = 65.0
+        if 'Daily Steps' not in st.session_state:
+            st.session_state['Daily Steps'] = 3000.0
+        if 'reset' not in st.session_state:
+            st.session_state['reset'] = False
+    
+    # ------------------ RESET FUNCTION ------------------
+    def reset_form():
+        keys_to_reset = [
+            "Gender", "Age", "Weight", "Height", "Occupation",
+            "Sleep Duration", "Sleep Quality", "Systolic", "Diastolic",
+            "Heart Rate", "Daily Steps"
+        ]
+        for key in keys_to_reset:
+            if key in st.session_state:
+                del st.session_state[key]
+
+    
+    # ------------------ MAIN APP ------------------
+    initialize_session_state()  # Initialize session state variables
+    
+    if choice == "Login":
         Email = st.sidebar.text_input("Email")
-        Password = st.sidebar.text_input("Password",type="password")
-        b1=st.sidebar.checkbox("Login")
+        Password = st.sidebar.text_input("Password", type="password")
+        b1 = st.sidebar.checkbox("Login")
+    
         if b1:
             regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
             if re.fullmatch(regex, Email):
                 create_usertable()
-                if Email=='a@a.com' and Password=='123':
-                    st.success("Logged In as {}".format("Admin"))
-                    Email=st.text_input("Delete Email")
+                if Email == 'a@a.com' and Password == '123':
+                    st.success(f"Logged In as Admin")
+                    Email = st.text_input("Delete Email")
                     if st.button('Delete'):
                         delete_user(Email)
                     user_result = view_all_users()
-                    clean_db = pd.DataFrame(user_result,columns=["FirstName","LastName","Mobile","City","Email","password","Cpassword"])
+                    clean_db = pd.DataFrame(user_result, columns=["FirstName", "LastName", "Mobile", "City", "Email", "password", "Cpassword"])
                     st.dataframe(clean_db)
                 else:
-                    result = login_user(Email,Password)
+                    result = login_user(Email, Password)
                     if result:
-                        st.success("Logged In as {}".format(Email))
-                        menu2 = ["K-Nearest Neighbors", "SVM",
-                                 "Decision Tree", "Random Forest",
-                                 "Naive Bayes","ExtraTreesClassifier","VotingClassifier"]
-                        choice2 = st.selectbox("Select ML",menu2)
-                        
-                        gd = ['Male', 'Female']
-                        Gender=st.selectbox("Select Gender",gd)
-                                          
-                        Age=float(st.slider('age Value', 27, 60))
-                        oc=['Software Engineer', 'Doctor', 'Sales Representative', 'Teacher',
-                               'Nurse', 'Engineer', 'Accountant', 'Scientist', 'Lawyer',
-                               'Salesperson', 'Manager']
-                        Occupation=st.selectbox("Select Occupation",oc)
-                        SD=float(st.slider('Sleep Duration', 5.8, 8.5))
-                        QS=float(st.slider('Quality of Sleep', 4, 9))
-                        PL=float(st.slider('Physical Activity Level', 30, 90))
-                        SL=float(st.slider('Stress Level', 3, 8))
-                        bm=['Overweight', 'Normal', 'Obese', 'Normal Weight']
-                        bmc=st.selectbox("BMI Category",bm)
-                        bp=['126/83', '125/80', '140/90', '120/80', '132/87', '130/86',
-                               '117/76', '118/76', '128/85', '131/86', '128/84', '115/75',
-                               '135/88', '129/84', '130/85', '115/78', '119/77', '121/79',
-                               '125/82', '135/90', '122/80', '142/92', '140/95', '139/91',
-                               '118/75']
-                        bps=st.selectbox("Blood Pressure",bp)
-                        HR=float(st.slider('Heart Rate', 65, 86))
-                        DS=float(st.slider('Daily Steps', 3000, 10000))
+                        st.success(f"Logged In as {Email}")
     
-                        
-                        my_array=[Gender, Age, Occupation, SD, QS,
-                               PL,SL,bmc,bps,HR,DS]
-                        
-                        b2=st.button("Predict")
-                        model=pickle.load(open("model.pkl",'rb'))
-                                               
-                        if b2:                        
-                            df = pd.DataFrame([my_array], 
-                                              columns=['Gender', 'Age', 'Occupation', 'Sleep Duration', 'Quality of Sleep',
-                                                     'Physical Activity Level', 'Stress Level', 'BMI Category',
-                                                     'Blood Pressure', 'Heart Rate', 'Daily Steps'])
-                            category_colums=['Gender','Occupation','BMI Category','Blood Pressure']
-                            encoder=pickle.load(open("encoder.pkl",'rb'))
-                            df[category_colums] = df[category_colums].apply(encoder.fit_transform)
-                            tdata=df.to_numpy()
-                            #st.write(tdata)
-                            if choice2=="K-Nearest Neighbors":
-                                test_prediction = model[0].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                            if choice2=="SVM":
-                                test_prediction = model[1].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)                 
-                            if choice2=="Decision Tree":
-                                test_prediction = model[2].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                            if choice2=="Random Forest":
-                                test_prediction = model[3].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                            if choice2=="Naive Bayes":
-                                test_prediction = model[4].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                            if choice2=="ExtraTreesClassifier":
-                                test_prediction = model[5].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                            if choice2=="VotingClassifier":
-                                test_prediction = model[6].predict(tdata)
-                                query=test_prediction[0]
-                                st.success(query)
-                                
+                        # ------------------ FORM UI ------------------
+    
+                        model_choice = st.selectbox("Select ML", ["VotingClassifier"])
+    
+                        # Gender: Initialize the session state and use it with key parameter
+                        if 'Gender' not in st.session_state:
+                            st.session_state['Gender'] = 'Male'  # Default value
+                        Gender = st.selectbox("Select Gender", ['Male', 'Female'], key="Gender", index=['Male', 'Female'].index(st.session_state["Gender"]))
+    
+                        # Age: Use number input for Age, enforce integer type
+                        if 'Age' not in st.session_state:
+                            st.session_state['Age'] = 25  # Default age
+                        Age = st.number_input("Enter Age Value", min_value=1, value=st.session_state["Age"], key="Age", step=1)
+    
+                        # Weight: Use number input for Weight
+                        if 'Weight' not in st.session_state:
+                            st.session_state['Weight'] = 70  # Default weight
+                        weight = st.number_input("Enter your weight (kg)", min_value=1.0, value=st.session_state["Weight"], key="Weight")
+    
+                        # Height: Use number input for Height
+                        if 'Height' not in st.session_state:
+                            st.session_state['Height'] = 170  # Default height
+                        height = st.number_input("Enter your height (cm)", min_value=1.0, value=st.session_state["Height"], key="Height")
+    
+                        # Calculate BMI Category
+                        if weight and height:
+                            height_m = height / 100
+                            bmi = weight / (height_m ** 2)
+                            if bmi < 18.5:
+                                bmc = "Underweight"
+                            elif 18.5 <= bmi < 25:
+                                bmc = "Normal weight"
+                            elif 25 <= bmi < 30:
+                                bmc = "Overweight"
+                            else:
+                                bmc = "Obese"
+                        else:
+                            bmc = "Unknown"
+    
+                        # Occupation
+                        oc = [
+                            'Software Engineer', 'Doctor', 'Sales Representative', 'Teacher',
+                            'Nurse', 'Engineer', 'Accountant', 'Scientist', 'Lawyer',
+                            'Salesperson', 'Manager'
+                        ]
+                        Occupation = st.selectbox("Select Occupation", oc, key="Occupation")
+    
+                        # Sleep Duration
+                        if 'Sleep Duration' not in st.session_state:
+                            st.session_state["Sleep Duration"] = 7.0  # Default value
+                        SD = float(st.slider("Enter Sleep Duration", 5.8, 8.5, value=st.session_state["Sleep Duration"], key="Sleep Duration"))
+    
+                        # Sleep Quality
+                        sleep_quality_options = {
+                            "Very Poor": 4,
+                            "Poor": 5,
+                            "Average": 6,
+                            "Good": 7,
+                            "Very Good": 8,
+                            "Excellent": 9
+                        }
+                        selected_quality = st.selectbox("Select Quality of Sleep", list(sleep_quality_options.keys()), key="Sleep Quality")
+                        QS = float(sleep_quality_options[selected_quality])
+    
+                        # Blood Pressure
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            systolic = st.number_input("Systolic", 80, 200, value=st.session_state["Systolic"], key="Systolic")
+                        with col2:
+                            diastolic = st.number_input("Diastolic", 40, 130, value=st.session_state["Diastolic"], key="Diastolic")
+                        bps = f"{int(systolic)}/{int(diastolic)}"
+    
+                        # Heart Rate and Steps
+                        HR = float(st.number_input("Enter Heart Rate", min_value=1.0, value=st.session_state["Heart Rate"], key="Heart Rate"))
+                        DS = float(st.number_input("Daily Steps", min_value=1.0, value=st.session_state["Daily Steps"], key="Daily Steps"))
+    
+                        # Final data array
+                        my_array = [Gender, Age, Occupation, SD, QS, bmc, bps, HR, DS]
+    
+                        # Predict Button (after Reset button)
+                        if st.button("Predict"):
+                            model = pickle.load(open("model.pkl", 'rb'))
+                            df = pd.DataFrame([my_array], columns=[
+                                'Gender', 'Age', 'Occupation', 'Sleep Duration', 'Quality of Sleep',
+                                'BMI Category', 'Blood Pressure', 'Heart Rate', 'Daily Steps'
+                            ])
+                            # Encode categorical data
+                            category_columns = ['Gender', 'Occupation', 'BMI Category', 'Blood Pressure']
+                            encoder = pickle.load(open("encoder.pkl", 'rb'))
+                            df[category_columns] = df[category_columns].apply(encoder.fit_transform)
+                            tdata = df.to_numpy()
+    
+                            if model_choice == "VotingClassifier":
+                                prediction = model[6].predict(tdata)
+                                st.success(f"Prediction: {prediction[0]}")
+    
+                        # Reset Button (after Predict button)
+                        if st.button("Reset All Selections"):
+                            reset_form()  # Resets the form to default values
                     else:
                         st.warning("Incorrect Email/Password")
             else:
                 st.warning("Not Valid Email")
+
+
+
+
                     
                
     if choice=="SignUp":
