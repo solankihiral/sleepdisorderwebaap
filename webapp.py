@@ -258,7 +258,11 @@ else:
     
                             if model_choice == "VotingClassifier":
                                 prediction = model[6].predict(tdata)
-                                st.success(f"Prediction: {prediction[0]}")
+                                if prediction[0]=="Sleep Apnea":
+                                    prd="Sleep Apnea: A serious sleep disorder in which breathing repeatedly stops and starts during sleep."
+                                else:
+                                    prd="Insomnia: Difficulty falling asleep, staying asleep, or waking up too early and not being able to get back
+                                st.success(f"Prediction: {prd}")
     
                         # Reset Button (after Predict button)
                         if st.button("Reset All Selections"):
