@@ -265,7 +265,7 @@ else:
                                 st.success(f"The system has detected signs of : {prd}")
     
                         # Reset Button (after Predict button)
-                        if st.button("Reset All Selections"):
+                        if st.button("Reset"):
                             reset_form()  # Resets the form to default values
                     else:
                         st.warning("Incorrect Email/Password")
