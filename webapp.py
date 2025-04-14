@@ -231,9 +231,9 @@ else:
                         # Blood Pressure
                         col1, col2 = st.columns(2)
                         with col1:
-                            systolic = st.number_input("Systolic", 80, 200, value=st.session_state["Systolic"], key="Systolic")
+                            systolic = st.number_input("Blood", 80, 200, value=st.session_state["Systolic"], key="Systolic")
                         with col2:
-                            diastolic = st.number_input("Diastolic", 40, 130, value=st.session_state["Diastolic"], key="Diastolic")
+                            diastolic = st.number_input("Presure", 40, 130, value=st.session_state["Diastolic"], key="Diastolic")
                         bps = f"{int(systolic)}/{int(diastolic)}"
     
                         # Heart Rate and Steps
