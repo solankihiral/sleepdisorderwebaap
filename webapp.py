@@ -214,7 +214,7 @@ else:
                         # Sleep Duration
                         if 'Sleep Duration' not in st.session_state:
                             st.session_state["Sleep Duration"] = 7.0  # Default value
-                        SD = float(st.slider("Enter Sleep Duration", 5.8, 8.5, value=st.session_state["Sleep Duration"], key="Sleep Duration"))
+                        SD = float(st.text_input("Enter Sleep Duration", 5.8, value=st.session_state["Sleep Duration"], key="Sleep Duration"))
     
                         # Sleep Quality
                         sleep_quality_options = {
